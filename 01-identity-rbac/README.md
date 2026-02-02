@@ -1,22 +1,21 @@
-\# Lab 01 — Azure RBAC \& Least Privilege
+# Lab 01 — Azure RBAC \& Least Privilege
 
 
 
-\## Goal
+## Goal
 
 Design and implement least-privilege access using Azure RBAC at the correct scope.
 
 
 
-\## Scenario
+## Scenario
 
 A security team needs to grant operational access to Azure resources without
 
 over-privileging users or breaking separation of duties.
 
 
-
-\## Threats mitigated
+## Threats mitigated
 
 \- Excessive permissions / privilege creep
 
@@ -26,13 +25,13 @@ over-privileging users or breaking separation of duties.
 
 
 
-\## Architecture
+## Architecture
 
 (To be added)
 
 
 
-\## Implementation steps
+## Implementation steps
 
 1\. Create resource group for lab
 
@@ -44,19 +43,19 @@ over-privileging users or breaking separation of duties.
 
 
 
-\## Validation
+## Validation
 
 (To be added)
 
 
 
-\## Production notes
+## Production notes
 
 (To be added)
 
 
 
-\## Lessons learned
+## Lessons learned
 
 (To be added)
 
