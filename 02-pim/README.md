@@ -60,7 +60,7 @@ A group-based role assignment is created with **eligible** access only.
 
 This ensures no permissions are granted without explicit activation.
 
-![Eligible role assignment](screenshots/01-eligible-assignment.png)
+![Eligible role assignment](screenshots/01-eligiable-assignment.png)
 
 ---
 
