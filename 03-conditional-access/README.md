@@ -4,7 +4,7 @@
 
 This lab demonstrates **identity hardening in Microsoft Entra ID** by designing and deploying a Conditional Access policy that **blocks legacy authentication protocols at the tenant level**.
 
-The purpose of this lab is to demonstrate:
+The objective is to demonstrate:
 
 - correct Conditional Access policy scoping
 - protocol-level access control
@@ -12,7 +12,7 @@ The purpose of this lab is to demonstrate:
 - safe tenant-wide policy deployment without lockout risk
 
 This lab intentionally avoids MFA-based enforcement scenarios.  
-In modern tenants, MFA is commonly enforced by default and does not reliably demonstrate **protocol-level Conditional Access behavior**. The focus of this lab is on **eliminating entire legacy authentication paths**, rather than strengthening authentication challenges.
+In modern tenants, MFA is commonly enabled by default and does not reliably demonstrate **protocol-level Conditional Access behavior**. The focus here is on **eliminating entire legacy authentication paths**, not strengthening authentication challenges.
 
 ---
 
@@ -23,7 +23,7 @@ The tenant contains standard user accounts used for operational access to Micros
 **Security requirements:**
 
 - legacy authentication protocols must be blocked
-- modern authentication flows must remain unaffected
+- modern authentication must remain unaffected
 - the policy must be safe to deploy tenant-wide
 - administrative recovery access must be preserved
 
@@ -74,60 +74,46 @@ Blocking legacy authentication removes **entire classes of identity attacks** wi
 
 ### Step 1 — Create Conditional Access Policy
 
-Create a new Conditional Access policy with an appropriate descriptive name.
+Create a new Conditional Access policy with a clear, descriptive name.
 
 ---
 
 ### Step 2 — Assign Users
 
-**Users**
-- Include: All users
-- Exclude:
-  - break-glass administrative account
+Include all users and explicitly exclude the break-glass administrative account to prevent tenant lockout.
 
-Excluding a recovery account is required to prevent tenant lockout and ensure emergency access.
-
-Screenshot reference:
-- `01-ca03-users-scope.png`
+![Users scope — include all, exclude break-glass](./screenshots/01-ca03-users-scope.png)
 
 ---
 
 ### Step 3 — Target Cloud Applications
 
-**Target resources**
-- Select: All resources (formerly “All cloud apps”)
+Target **all resources** (formerly “All cloud apps”) to ensure all legacy authentication attempts are evaluated.
 
-This ensures that legacy authentication attempts against Microsoft cloud services are consistently evaluated.
-
-Screenshot reference:
-- `02-ca03-cloud-apps.png`
+![Cloud apps scope — all resources](./screenshots/02-ca03-cloud-apps.png)
 
 ---
 
 ### Step 4 — Configure Legacy Authentication Condition
 
-**Conditions → Client apps**
-- Configure: Yes
-- Legacy authentication clients:
-  - Exchange ActiveSync clients
-  - Other clients
+Configure the policy to apply only to legacy authentication clients:
 
-Modern authentication clients (browser, mobile apps, desktop apps) are intentionally excluded to avoid impacting normal user workflows.
+- Exchange ActiveSync clients  
+- Other legacy clients  
 
-Screenshot reference:
-- `03-ca03-legacy-auth-condition.png`
+Modern authentication clients are intentionally excluded to avoid impacting normal user workflows.
+
+![Legacy authentication client condition](./screenshots/03-ca03-legacy-auth-condition.png)
 
 ---
 
 ### Step 5 — Block Access
 
-**Access controls → Grant**
-- Select: Block access
+Configure the policy to **block access** when legacy authentication is detected.
 
-No additional grant controls are configured.
+No additional grant controls are required.
 
-Screenshot reference:
-- `04-ca03-block-access.png`
+![Grant control — block access](./screenshots/04-ca03-block-access.png)
 
 ---
 
@@ -142,7 +128,7 @@ Set the policy state to **On** and save the configuration.
 Blocking legacy authentication is a **preventive identity control**.
 
 In a hardened tenant, legacy authentication traffic is expected to be **absent**.  
-As a result, this lab does not rely on generating artificial legacy sign-in attempts.
+For this reason, the lab does not rely on generating artificial legacy sign-in attempts.
 
 Policy effectiveness is validated through:
 
@@ -156,7 +142,7 @@ This reflects real-world identity operations, where preventive controls are vali
 
 ## Common Misconfigurations Avoided
 
-- Blocking legacy authentication per-application instead of tenant-wide
+- Blocking legacy authentication per application instead of tenant-wide
 - Forgetting to exclude break-glass accounts
 - Combining legacy authentication blocking with MFA unnecessarily
 - Assuming Security Defaults fully disable legacy protocols
