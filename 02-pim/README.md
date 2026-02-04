@@ -1,4 +1,4 @@
-# Lab 02 — Azure PIM: Just-in-Time Data Plane Access
+# Lab 02 â€” Azure PIM: Just-in-Time Data Plane Access
 
 ## Goal
 
