@@ -4,7 +4,7 @@
 
 This lab demonstrates the use of Microsoft Entra Privileged Identity Management (PIM) to enforce just-in-time access for sensitive data-plane operations in Azure.
 
-The objective is to remove standing privileges while preserving operational capability through time-bound, auditable role activation.
+The objective is to eliminate standing privileges while preserving operational capability through time-bound, auditable role activation.
 
 ---
 
@@ -60,7 +60,7 @@ A group-based role assignment is created with **eligible** access only.
 
 This ensures no permissions are granted without explicit activation.
 
-`01-eligible-assignment.png`
+![Eligible role assignment](screenshots/01-eligible-assignment.png)
 
 ---
 
@@ -72,7 +72,7 @@ Activation is configured with:
 - time-bound activation
 - audit logging enabled
 
-`02-activation-settings.png`
+![Activation settings](screenshots/02-activation-settings.png)
 
 ---
 
@@ -85,7 +85,7 @@ Before activation:
 
 This confirms deny-by-absence and the absence of standing access.
 
-`03-before-activation-denied.png`
+![Access denied before activation](screenshots/03-before-activation-denied.png)
 
 ---
 
@@ -93,7 +93,7 @@ This confirms deny-by-absence and the absence of standing access.
 
 The operator submits an activation request with justification.
 
-`04-activation-request-submitted.png`
+![Activation request submitted](screenshots/04-activation-request-submitted.png)
 
 ---
 
@@ -101,7 +101,7 @@ The operator submits an activation request with justification.
 
 An administrator reviews and approves the request.
 
-`05-approval-completed.png`
+![Approval completed](screenshots/05-approval-completed.png)
 
 ---
 
@@ -116,7 +116,7 @@ Actions performed:
 - create a blob container
 - upload a test file
 
-`06-creation-success.png`
+![Data-plane access validated](screenshots/06-creation-success.png)
 
 ---
 
@@ -124,7 +124,7 @@ Actions performed:
 
 Activation, approval, and role usage events are recorded and reviewed via PIM and activity logs.
 
-`07-audit-logs.png`
+![Audit logs](screenshots/07-audit-logs.png)
 
 ---
 
