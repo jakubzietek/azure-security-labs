@@ -1,362 +1,179 @@
-\# Lab 05 — Azure Storage Network Isolation with Firewall, Bastion, and Private Endpoint
+# Lab 05 — Azure Storage Network Isolation with Firewall, Bastion, and Private Endpoint
 
+## Overview
 
-
-\## Overview
-
-
-
-This lab demonstrates \*\*enterprise-grade network isolation of Azure Storage\*\* using defense-in-depth controls.  
-
-The objective is to ensure that blob data is \*\*not reachable from the public internet\*\*, even if credentials are compromised, and that \*\*all access paths are explicitly controlled and validated\*\*.
-
-
+This lab demonstrates **enterprise-grade network isolation of Azure Storage** using defense-in-depth controls.  
+The objective is to ensure that blob data is **not reachable from the public internet**, even if credentials are compromised, and that **all access paths are explicitly controlled and validated**.
 
 The lab combines:
-
-\- Network segmentation
-
-\- Private Endpoints
-
-\- Forced egress via Azure Firewall
-
-\- Bastion-based administrative access
-
-\- Layer 7 outbound allowlisting
-
-
+- Network segmentation
+- Private Endpoints
+- Forced egress via Azure Firewall
+- Bastion-based administrative access
+- Layer 7 outbound allowlisting
 
 The implementation reflects real-world Azure security architectures used in regulated and high-security environments.
 
+---
 
+## Goals
+
+- Enforce **network-level isolation** for Azure Storage
+- Eliminate public data-plane access
+- Restrict administrative access to private connectivity only
+- Centralize outbound traffic control
+- Validate both **allowed** and **denied** access paths
 
 ---
 
+## Architecture Summary
 
+**Region:** North Switzerland (chosen due to student subscription compute quotas)
 
-\## Goals
+### Core Components
+- Virtual Network with segmented subnets
+- Azure Firewall (Standard)
+- Azure Bastion
+- Virtual Machine (no public IP)
+- Azure Storage Account (Blob)
+- Private Endpoint + Private DNS
+- User-Defined Routes (UDR)
 
-
-
-\- Enforce \*\*network-level isolation\*\* for Azure Storage
-
-\- Eliminate public data-plane access
-
-\- Restrict administrative access to private connectivity only
-
-\- Centralize outbound traffic control
-
-\- Validate both \*\*allowed\*\* and \*\*denied\*\* access paths
-
-
-
----
-
-
-
-\## Architecture Summary
-
-
-
-\*\*Region:\*\* North Switzerland (chosen due to student subscription compute quotas)
-
-
-
-\### Core Components
-
-\- Virtual Network with segmented subnets
-
-\- Azure Firewall (Standard)
-
-\- Azure Bastion
-
-\- Virtual Machine (no public IP)
-
-\- Azure Storage Account (Blob)
-
-\- Private Endpoint + Private DNS
-
-\- User-Defined Routes (UDR)
-
-
-
-\### High-level Flow
-
-\- Workload VM has no public exposure
-
-\- All outbound traffic is routed through Azure Firewall
-
-\- Storage Account is accessible \*\*only via Private Endpoint\*\*
-
-\- Public network access to Storage is disabled
-
-\- Bastion provides secure administrative access
-
-\- Firewall enforces Layer 7 outbound allowlisting
-
-
+### High-level Flow
+- Workload VM has no public exposure
+- All outbound traffic is routed through Azure Firewall
+- Storage Account is accessible **only via Private Endpoint**
+- Public network access to Storage is disabled
+- Bastion provides secure administrative access
+- Firewall enforces Layer 7 outbound allowlisting
 
 ---
 
-
-
-\## Network Design
-
-
+## Network Design
 
 | Subnet | Purpose |
-
 |------|--------|
-
 | `AzureFirewallSubnet` | Azure Firewall |
-
 | `AzureBastionSubnet` | Bastion |
-
 | `snet-workload` | VM workload |
-
 | `snet-private-endpoints` | Private Endpoints |
-
-
 
 ---
 
+## Implementation
 
-
-\## Implementation
-
-
-
-\### 1. Azure Firewall Deployment
-
-
+### 1. Azure Firewall Deployment
 
 Azure Firewall (Standard) was deployed into a dedicated subnet to act as a centralized egress control point.
 
-
-
-!\[Azure Firewall Overview](screenshots/azure-firewall-overview.png)
-
-
+![Azure Firewall Overview](screenshots/azure-firewall-overview.png)
 
 ---
 
-
-
-\### 2. Forced Egress via User-Defined Routes
-
-
+### 2. Forced Egress via User-Defined Routes
 
 A route table was created to force all outbound traffic (`0.0.0.0/0`) from the workload subnet through the Azure Firewall.
 
-
-
-!\[Route to Firewall](screenshots/route\_to\_firewall.png)
-
-
+![Route to Firewall](screenshots/route_to_firewall.png)
 
 The route table was explicitly associated with the workload subnet.
 
-
-
-!\[Subnet Association](screenshots/association\_to\_snet-workload.png)
-
-
+![Subnet Association](screenshots/association_to_snet-workload.png)
 
 ---
 
-
-
-\### 3. Secure Administrative Access with Bastion
-
-
+### 3. Secure Administrative Access with Bastion
 
 Azure Bastion was deployed to provide browser-based SSH access without assigning public IPs to virtual machines.
 
-
-
-!\[Bastion Overview](screenshots/bastion-overview.png)
-
-
+![Bastion Overview](screenshots/bastion-overview.png)
 
 Connection to the VM is performed exclusively via Bastion.
 
-
-
-!\[Connecting to VM via Bastion](screenshots/connecting\_to\_vm\_via\_bastion.png)
-
-
+![Connecting to VM via Bastion](screenshots/connecting_to_vm_via_bastion.png)
 
 ---
 
-
-
-\### 4. Storage Account Network Hardening
-
-
+### 4. Storage Account Network Hardening
 
 Public network access to the Storage Account was explicitly disabled, enforcing private connectivity only.
 
-
-
-!\[Storage Networking Disabled](screenshots/storage\_account\_networking\_disabled.png)
-
-
+![Storage Networking Disabled](screenshots/storage_account_networking_disabled.png)
 
 ---
 
-
-
-\### 5. Private Endpoint for Blob Access
-
-
+### 5. Private Endpoint for Blob Access
 
 A Private Endpoint was created for the Blob service and integrated with Private DNS to ensure name resolution to a private IP.
 
-
-
-!\[Private Endpoint Approved](screenshots/private\_endpoint\_connection\_approved.png)
-
-
+![Private Endpoint Approved](screenshots/private_endpoint_connection_approved.png)
 
 ---
 
+## Validation
 
-
-\## Validation
-
-
-
-\### Validation 1 — Public Access Denied
-
-
+### Validation 1 — Public Access Denied
 
 Attempting to access the storage container from outside the virtual network results in denied access, confirming that public data-plane exposure is eliminated.
 
-
-
-!\[Public Access Denied](screenshots/secureddatacontainer\_notallowed\_access.png)
-
-
+![Public Access Denied](screenshots/secureddatacontainer_notallowed_access.png)
 
 ---
 
-
-
-\### Validation 2 — Private Access Allowed
-
-
+### Validation 2 — Private Access Allowed
 
 From the workload VM (accessed via Bastion):
 
+- DNS resolution of the storage account returns a **private IP**
+- HTTPS connectivity to the Blob service succeeds
 
+![Private Access Allowed](screenshots/terminal_allowed.png)
 
-\- DNS resolution of the storage account returns a \*\*private IP\*\*
-
-\- HTTPS connectivity to the Blob service succeeds
-
-
-
-!\[Private Access Allowed](screenshots/terminal\_allowed.png)
-
-
-
-This confirms that access is possible \*\*only\*\* from inside the trusted network boundary.
-
-
+This confirms that access is possible **only** from inside the trusted network boundary.
 
 ---
 
+### Validation 3 — Firewall Application Rule Enforcement
 
+An Azure Firewall **Application Rule** was configured to allow outbound HTTPS traffic **only** to Microsoft-owned domains.
 
-\### Validation 3 — Firewall Application Rule Enforcement
+#### Allowed Destination
+- `https://www.microsoft.com` → allowed
 
+#### Blocked Destination
+- `https://www.google.com` → blocked
 
+![Firewall Rule Configuration](screenshots/firewall_rule.png)
 
-An Azure Firewall \*\*Application Rule\*\* was configured to allow outbound HTTPS traffic \*\*only\*\* to Microsoft-owned domains.
-
-
-
-\#### Allowed Destination
-
-\- `https://www.microsoft.com` → allowed
-
-
-
-\#### Blocked Destination
-
-\- `https://www.google.com` → blocked
-
-
-
-!\[Firewall Rule Configuration](screenshots/firewall\_rule.png)
-
-
-
-!\[Firewall Rule Validation](screenshots/firewall\_rule\_vm\_validation.png)
-
-
+![Firewall Rule Validation](screenshots/firewall_rule_vm_validation.png)
 
 This validates centralized Layer 7 outbound control and implicit deny behavior.
 
+---
 
+## Security Outcomes
+
+- No public IPs on workloads
+- No public access to Storage data-plane
+- Explicit private connectivity via Private Endpoint
+- Centralized egress inspection and control
+- Bastion-only administrative access
+- Defense-in-depth across identity, network, and data layers
 
 ---
 
+## Lessons Learned
 
-
-\## Security Outcomes
-
-
-
-\- No public IPs on workloads
-
-\- No public access to Storage data-plane
-
-\- Explicit private connectivity via Private Endpoint
-
-\- Centralized egress inspection and control
-
-\- Bastion-only administrative access
-
-\- Defense-in-depth across identity, network, and data layers
-
-
+- Network isolation is a critical complement to identity-based access control
+- Private Endpoints effectively eliminate public attack surface for PaaS services
+- Azure Firewall enables enforceable outbound control and data exfiltration prevention
+- Bastion removes the need for inbound administrative exposure
+- Cloud architecture must adapt to regional quota constraints without compromising security
 
 ---
 
+## Notes
 
-
-\## Lessons Learned
-
-
-
-\- Network isolation is a critical complement to identity-based access control
-
-\- Private Endpoints effectively eliminate public attack surface for PaaS services
-
-\- Azure Firewall enables enforceable outbound control and data exfiltration prevention
-
-\- Bastion removes the need for inbound administrative exposure
-
-\- Cloud architecture must adapt to regional quota constraints without compromising security
-
-
-
----
-
-
-
-\## Notes
-
-
-
-\- Resources were deployed temporarily and removed after validation to control cost
-
-\- The architecture aligns with enterprise Azure landing zone patterns
-
-\- The lab intentionally prioritizes \*\*security signal over resource sprawl\*\*
-
-
-
----
-
+- Resources were deployed temporarily and removed after validation to control cost
+- The architecture aligns with enterprise Azure landing zone patterns
+- The lab intentionally prioritizes **security signal over resource sprawl**
