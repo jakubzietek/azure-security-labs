@@ -116,7 +116,7 @@ A Private Endpoint was created for the Blob service and integrated with Private 
 
 Attempting to access the storage container from outside the virtual network results in denied access, confirming that public data-plane exposure is eliminated.
 
-![Public Access Denied](screenshots/secureddatacontainer_notallowed_access.png)
+![Public Access Denied](screenshots/securedatacontainer_notallowed_access_from_azure_portal.png)
 
 ---
 
